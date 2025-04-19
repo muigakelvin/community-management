@@ -1,3 +1,23 @@
+#spring:
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: ${DB_URL}
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#  sql:
+#    init:
+#      mode: always
+#logging:
+#  level:
+#    org.springframework: DEBUG
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -14,6 +34,9 @@ spring:
   sql:
     init:
       mode: always
+
 logging:
   level:
     org.springframework: DEBUG
+    org.springframework.web: DEBUG # Log details for Spring Web-related operations
+    com.example.community_management: DEBUG # Log details for your application package
