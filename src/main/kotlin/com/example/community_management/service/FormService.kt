@@ -27,9 +27,18 @@ class FormService(
     fun processAddFormDialog(addFormDialog: AddFormDialogDto) {
         logger.info("Processing AddFormDialog data: $addFormDialog")
 
+        // Decode base64 files into temporary files
+        val loiDocument = addFormDialog.loiDocument?.let { decodeBase64ToFile(it, "loi.pdf") }
+        val mouDocument = addFormDialog.mouDocument?.let { decodeBase64ToFile(it, "mou.pdf") }
+        val gisDetails = addFormDialog.gisDetails?.let { decodeBase64ToFile(it, "gis.gpx") }
+
         try {
             // Map DTO to Entity
-            val mainTableEntity = mapAddFormDialogToMainTableEntity(addFormDialog)
+            val mainTableEntity = mapAddFormDialogToMainTableEntity(addFormDialog).apply {
+                this.loiDocumentPath = loiDocument?.absolutePath
+                this.mouDocumentPath = mouDocument?.absolutePath
+                this.gisDetailsPath = gisDetails?.absolutePath
+            }
 
             // Save the main table entity
             val savedMainTable = mainTableRepository.save(mainTableEntity)
@@ -38,6 +47,11 @@ class FormService(
         } catch (e: Exception) {
             logger.error("Error processing AddFormDialog: ${e.message}")
             throw RuntimeException("Failed to process AddFormDialog")
+        } finally {
+            // Clean up temporary files
+            listOf(loiDocument, mouDocument, gisDetails).forEach { file ->
+                file?.delete()
+            }
         }
     }
 
@@ -52,12 +66,11 @@ class FormService(
 
         try {
             // Map DTO to Entity
-            val mainTableEntity = mapRepresentativeFormToMainTableEntity(representativeForm)
-
-            // Associate decoded file paths with the entity
-            mainTableEntity.loiDocumentPath = loiDocument?.absolutePath
-            mainTableEntity.mouDocumentPath = mouDocument?.absolutePath
-            mainTableEntity.gisDetailsPath = gisDetails?.absolutePath
+            val mainTableEntity = mapRepresentativeFormToMainTableEntity(representativeForm).apply {
+                this.loiDocumentPath = loiDocument?.absolutePath
+                this.mouDocumentPath = mouDocument?.absolutePath
+                this.gisDetailsPath = gisDetails?.absolutePath
+            }
 
             // Save the main table entity
             val savedMainTable = mainTableRepository.save(mainTableEntity)
@@ -69,9 +82,9 @@ class FormService(
             logger.info("RepresentativeForm submitted successfully with ID: ${savedMainTable.id}")
         } finally {
             // Clean up temporary files
-            loiDocument?.delete()
-            mouDocument?.delete()
-            gisDetails?.delete()
+            listOf(loiDocument, mouDocument, gisDetails).forEach { file ->
+                file?.delete()
+            }
         }
     }
 
@@ -122,9 +135,9 @@ class FormService(
             logger.info("Record updated successfully with ID: $id")
         } finally {
             // Clean up temporary files
-            loiDocument?.delete()
-            mouDocument?.delete()
-            gisDetails?.delete()
+            listOf(loiDocument, mouDocument, gisDetails).forEach { file ->
+                file?.delete()
+            }
         }
     }
 
@@ -164,9 +177,9 @@ class FormService(
             signedLocal = dto.signedLocal,
             signedOrg = dto.signedOrg,
             witnessLocal = dto.witnessLocal,
-            loiDocumentPath = null, // No file handling for AddFormDialog
-            mouDocumentPath = null,
-            gisDetailsPath = null,
+            loiDocumentPath = null, // Set later in processAddFormDialog
+            mouDocumentPath = null, // Set later in processAddFormDialog
+            gisDetailsPath = null, // Set later in processAddFormDialog
             source = dto.source
         )
     }
@@ -187,10 +200,10 @@ class FormService(
             signedLocal = dto.signedLocal,
             signedOrg = dto.signedOrg,
             witnessLocal = dto.witnessLocal,
-            loiDocumentPath = null, // Set later in FormService
-            mouDocumentPath = null, // Set later in FormService
-            gisDetailsPath = null, // Set later in FormService
-            source = dto.source // Map the source field
+            loiDocumentPath = null, // Set later in processRepresentativeForm
+            mouDocumentPath = null, // Set later in processRepresentativeForm
+            gisDetailsPath = null, // Set later in processRepresentativeForm
+            source = dto.source
         )
     }
 }
