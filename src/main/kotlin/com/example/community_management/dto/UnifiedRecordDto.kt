@@ -1,5 +1,7 @@
 package com.example.community_management.dto
 
+import com.example.community_management.dto.MemberDto // Import the MemberDto class
+
 data class UnifiedRecordDto(
     val id: Long?,
     val communityMember: String?,
@@ -22,5 +24,5 @@ data class UnifiedRecordDto(
     val mouDocument: String?,
     val gisDetails: String?,
     val source: String?,
-    val members: List<MemberDto>?
+    val members: List<MemberDto>? // Use the imported MemberDto
 )

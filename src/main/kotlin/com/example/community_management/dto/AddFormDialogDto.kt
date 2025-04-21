@@ -1,5 +1,7 @@
 package com.example.community_management.dto
 
+import com.example.community_management.dto.MemberDto // Import the MemberDto class
+
 data class AddFormDialogDto(
     val communityMember: String,
     val idNumber: String,
@@ -17,5 +19,5 @@ data class AddFormDialogDto(
     val mouDocument: String,
     val gisDetails: String,
     val source: String,
-    val members: List<Map<String, Any>> = emptyList()
+    val members: List<MemberDto> = emptyList() // Use the imported MemberDto
 )
